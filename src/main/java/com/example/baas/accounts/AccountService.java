@@ -2,8 +2,9 @@ package com.example.baas.accounts;
 
 import com.example.baas.messaging.AccountEventProducer;
 import org.springframework.stereotype.Service;
-import java.util.List;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 
 @Service

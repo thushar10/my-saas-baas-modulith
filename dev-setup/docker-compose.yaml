@@ -1,0 +1,72 @@
+# Removed 'version: 3.8' as it's obsolete in newer Docker Compose versions
+
+networks:
+  qc:
+    driver: bridge
+
+services:
+  postgres:
+    image: bitnami/postgresql:15.10.0
+    container_name: postgres_db
+    environment:
+      - POSTGRESQL_USERNAME=quantumcore
+      - POSTGRESQL_PASSWORD=quantumcore
+      - POSTGRESQL_DATABASE=quantumcore
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - qc
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U quantumcore -d quantumcore"]
+      interval: 10s
+      timeout: 10s  # Increased timeout
+      retries: 10   # Increased retries
+      start_period: 30s # Added grace period for initial startup
+
+  flyway:
+    image: flyway/flyway:10.12.0-alpine
+    container_name: flyway_migrator
+    command:
+      - -url=jdbc:postgresql://postgres:5432/quantumcore
+      - -user=quantumcore
+      - -password=quantumcore
+      - -schemas=quantumcore
+      - -connectRetries=60
+      - migrate
+    volumes:
+      - ../src/main/resources/db/migration:/flyway/sql
+    networks:
+      - qc
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  solace:
+    # Changed image tag to 'latest' or a confirmed valid one from Solace
+    # As discussed, '10.24.1.23' is likely not publicly available.
+    image: solace/solace-pubsub-standard:10.4 # Or solace/solace-pubsub-standard:10.0.0.39 (or a confirmed valid version)
+    container_name: solace_broker
+    shm_size: 2g
+    ulimits:
+      nofile:
+        soft: 2448
+        hard: 42768
+    ports:
+      - "8080:8080" # Web UI
+      - "55556:55555" # SMF
+      - "8008:8008"   # REST
+    environment:
+      - username_admin_globalaccesslevel=admin
+      - username_admin_password=admin
+    networks:
+      - qc
+    healthcheck:
+      test: ["CMD-SHELL", "/usr/local/sbin/check-health.sh"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:

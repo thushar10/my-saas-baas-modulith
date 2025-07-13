@@ -1,0 +1,28 @@
+spring:
+  application:
+    name: baas-app
+  datasource:
+    url: jdbc:postgresql://localhost:5432/quantumcore
+    username: quantumcore
+    password: quantumcore
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate # We use Flyway for schema management, so we validate the schema against entities
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  flyway:
+    enabled: true # Ensures Flyway runs on startup
+  jms:
+    listener:
+      acknowledge-mode: auto # Default acknowledgement mode for JMS listeners
+
+# Custom properties for Solace connection
+solace:
+  jms:
+    host: tcp://localhost:55555
+    msgVpn: default
+    clientUsername: admin
+    clientPassword: admin
