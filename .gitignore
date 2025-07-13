@@ -1,0 +1,24 @@
+# IntelliJ
+.idea/
+*.iml
+
+# macOS
+.DS_Store
+
+# Build output
+build/
+out/
+.gradle/
+
+# Gradle wrapper logs
+gradlew.bat
+gradlew
+gradle/wrapper/
+
+# Logs
+*.log
+
+# Optional: Java/JetBrains backup files
+*.class
+*.swp
+*.tmp
