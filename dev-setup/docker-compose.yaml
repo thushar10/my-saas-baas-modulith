@@ -65,8 +65,26 @@ services:
     healthcheck:
       test: ["CMD-SHELL", "/usr/local/sbin/check-health.sh"]
       interval: 10s
-      timeout: 5s
-      retries: 5
+      timeout: 15s   # Increased from 5s
+      retries: 10    # Increased from 5
+      start_period: 90s # <--- Significantly increase this. Solace can take a while.
+
+  solace-config:
+    image: curlimages/curl:8.7.1 # A minimal, public image containing the 'curl' tool
+    container_name: solace_configurator
+    restart: on-failure
+    volumes:
+      - ./configure-solace.sh:/app/configure-solace.sh # Mount the script that has the logic
+    # Define our configuration declaratively using environment variables
+    environment:
+      - SEMP_USER=admin
+      - SEMP_PASS=admin
+      - VPN_NAME=default
+      - QUEUE_NAME=q/accounts/created
+      - TOPIC_NAME=accounts.created
+    command: [ "sh", "/app/configure-solace.sh" ] # Run the script
+    networks:
+      - qc
 
 volumes:
   postgres_data:

@@ -1,0 +1,15 @@
+# This file contains Solace CLI commands that will be executed by the container on startup.
+# It sets up a durable queue and subscribes it to a topic.
+
+- SempV2
+- command: "                    # Start a CLI block
+      cli
+      message-vpn default
+      create queue q/accounts/created
+        permission all delete     # Give clients full permissions on the queue
+        access-type non-exclusive # Allow multiple consumers if needed
+        no shutdown               # Enable the queue
+      exit
+      create topic-subscription queue q/accounts/created topic accounts.created
+      exit
+    "
