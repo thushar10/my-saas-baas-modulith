@@ -85,6 +85,37 @@ services:
     command: [ "sh", "/app/configure-solace.sh" ] # Run the script
     networks:
       - qc
+  # --- NEW: Spring Boot Backend Service ---
+  baas-app:
+    container_name: my-saas-baas-modulith
+    # Build the Dockerfile from the 'baas-app' directory
+    build:
+      context: ../../my-saas-baas-modulith
+    environment:
+      # Activate the 'docker' profile when running in the container
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - flyway
+      - solace-config
+    networks:
+      - qc
+    # Note: We don't need to expose the port to the host machine,
+    # because the 'frontend-app' can reach it over the internal 'qc' network.
+    # We could expose it for direct testing, e.g., '9090:8080'.
+
+  # --- NEW: React Frontend Service ---
+  frontend-app:
+    container_name: my-saas-ui
+    # Build the Dockerfile from the 'frontend' directory
+    build:
+      context: ../../my-saas-ui/my-saas-ui
+    ports:
+      # Expose the frontend to your host machine on port 3000
+      - "3000:80"
+    depends_on:
+      - baas-app
+    networks:
+      - qc
 
 volumes:
   postgres_data:

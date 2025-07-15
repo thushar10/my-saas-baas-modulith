@@ -1,0 +1,8 @@
+# application-docker.yaml
+spring:
+  datasource:
+    url: jdbc:postgresql://postgres:5432/quantumcore # PostgreSQL service name in Docker Compose
+
+solace:
+  jms:
+    host: tcp://solace:55555 # Solace service name in Docker Compose
